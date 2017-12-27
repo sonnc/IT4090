@@ -1,14 +1,10 @@
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import javax.imageio.ImageIO;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
@@ -538,6 +534,133 @@ public class Code {
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
         }
+    }
+
+    public void FindObjects() {
+        // Load the library
+
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
+        // Consider the image for processing
+        Mat image = Imgcodecs.imread("saosao.jpg", Imgproc.COLOR_BGR2GRAY);
+        Mat imageHSV = new Mat(image.size(), CvType.CV_8UC4);
+        Mat imageBlurr = new Mat(image.size(), CvType.CV_8UC4);
+        Mat imageA = new Mat(image.size(), CvType.CV_32F);
+        Imgproc.cvtColor(image, imageHSV, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.GaussianBlur(imageHSV, imageBlurr, new Size(5, 5), 0);
+        Imgproc.adaptiveThreshold(imageBlurr, imageA, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 7, 5);
+
+        Imgcodecs.imwrite("duc1.jpg", imageBlurr);
+
+        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+        Imgproc.findContours(imageA, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+        //Imgproc.drawContours(imageBlurr, contours, 1, new Scalar(0,0,255));
+        for (int i = 0; i < contours.size(); i++) {
+            System.out.println(Imgproc.contourArea(contours.get(i)));
+            if (Imgproc.contourArea(contours.get(i)) > 10) {
+                Rect rect = Imgproc.boundingRect(contours.get(i));
+                System.out.println(rect.height);
+                if (rect.height > 5) {
+                    //System.out.println(rect.x +","+rect.y+","+rect.height+","+rect.width);
+                    Imgproc.rectangle(image, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 0, 255));
+                }
+            }
+        }
+        Imgcodecs.imwrite("duc2.jpg", image);
+
+    }
+
+    public void findContour() {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        Mat image = Imgcodecs.imread("duc.jpg", Imgproc.COLOR_BGR2GRAY);
+        if (image.empty() == true) {
+            System.out.println("Error: no image found!");
+        }
+
+        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+        Mat image32S = new Mat();
+        image.convertTo(image32S, CvType.CV_32SC1);
+
+        Imgproc.findContours(image32S, contours, new Mat(), Imgproc.RETR_FLOODFILL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+// Draw all the contours such that they are filled in.
+        Mat contourImg = new Mat(image32S.size(), image32S.type());
+        for (int i = 0; i < contours.size(); i++) {
+            Imgproc.drawContours(contourImg, contours, i, new Scalar(255, 255, 255), -1);
+        }
+
+        Imgcodecs.imwrite("debug_image.jpg", contourImg); // DEBUG
+    }
+
+    public void run() {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        int radio = 0; // radius
+        Point pnt = null;
+        Mat fuente = Imgcodecs.imread("duc.jpg", Imgcodecs.CV_LOAD_IMAGE_COLOR); // font
+        Mat destino = new Mat(fuente.rows(), fuente.cols(), fuente.type()); // target
+
+        Imgproc.cvtColor(fuente, destino, Imgproc.COLOR_RGB2GRAY);
+
+        Imgproc.GaussianBlur(destino, destino, new Size(3, 3), 0, 0);
+        Mat circulos = new Mat(); // circles
+        //(Mat image, Mat circles,        int method  ,  dp, minDist, param1,  param2, minRadius, maxRadius)
+        Imgproc.HoughCircles(destino, circulos, Imgproc.CV_HOUGH_GRADIENT, 1, 1, 200, 100, 30, 300);
+        int radios;
+        Point pt;
+        System.out.println("" + circulos.cols());
+
+        for (int x = 0; x < circulos.cols(); x++) {
+            double vCirculo[] = circulos.get(0, x);
+
+            if (vCirculo == null) {
+                break;
+            }
+
+            pt = new Point(Math.round(vCirculo[0]), Math.round(vCirculo[1]));
+            radios = (int) Math.round(vCirculo[2]);
+
+            // encontrar radio mayor - finding greater radius
+            if (radio < radios) {
+                radio = radios;
+                pnt = pt;
+            }
+        }
+        // dibujar circulos encontrados - draw found circles
+        if (circulos.cols() != 0) {
+            Imgproc.circle(destino, pnt, radio, new Scalar(255, 255, 255), 3);
+            Imgproc.circle(destino, pnt, 1, new Scalar(255, 0, 0), 3);
+        } else {
+            System.out.println("no se encontraron circulos"); // there's no circles
+        }
+
+        Imgcodecs.imwrite("foundCircles.png", destino);
+        System.out.println("radio mayor " + radio);
+    }
+
+    public void test() {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        Mat m = Imgcodecs.imread("duc.jpg", Imgcodecs.CV_LOAD_IMAGE_COLOR);
+        Mat hsv = new Mat();
+        Mat mask = new Mat();
+        Mat dilmask = new Mat();
+        Mat fin = new Mat();
+        Scalar color = new Scalar(239, 117, 94);
+        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+        Imgproc.cvtColor(m, hsv, Imgproc.COLOR_RGB2HSV);
+        new LoadImage("duc.jpg", m);
+        Scalar lowerThreshold = new Scalar(120, 100, 100);
+        Scalar upperThreshold = new Scalar(179, 255, 255);
+        Core.inRange(hsv, lowerThreshold, upperThreshold, mask);
+        Imgproc.dilate(mask, dilmask, new Mat());
+        Imgproc.findContours(dilmask, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+        //Imgproc.drawContours(fin, contours, -1, color, 0);
+        for (int contourIdx = 0; contourIdx < contours.size(); contourIdx++) {
+            if (contours.size() > 10) // Minimum size allowed for consideration
+            {
+                Imgproc.drawContours(fin, contours, contourIdx, color, 3);
+            }
+        }
+        Imgcodecs.imwrite("s.jpg", fin);
     }
 
     public void LoadImg(String src) {
