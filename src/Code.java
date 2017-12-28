@@ -60,7 +60,7 @@ public class Code {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-            Mat source = Imgcodecs.imread("duc.jpg",
+            Mat source = Imgcodecs.imread("ducOstu.jpg",
                     Imgcodecs.CV_LOAD_IMAGE_COLOR);
 
             Mat destination = new Mat(source.rows(), source.cols(), source.type());
@@ -106,7 +106,7 @@ public class Code {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-            Mat source = Imgcodecs.imread("ducMedian.jpg",
+            Mat source = Imgcodecs.imread("BinaryImageErosion.jpg",
                     Imgcodecs.CV_LOAD_IMAGE_COLOR);
             Mat destination = new Mat(source.rows(), source.cols(), source.type());
             Imgproc.medianBlur(source, destination, n);
@@ -402,7 +402,7 @@ public class Code {
     public void Ostu() {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-            Mat source = Imgcodecs.imread("duc.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+            Mat source = Imgcodecs.imread("IMG_0092.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
             Mat destination = new Mat(source.rows(), source.cols(), source.type());
             destination = source;
             Imgproc.threshold(source, destination, 125, 255, Imgproc.THRESH_OTSU);
@@ -471,7 +471,7 @@ public class Code {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
             Mat image = new Mat();
-            image = Imgcodecs.imread("duc.jpg");
+            image = Imgcodecs.imread("BinaryImageErosion.jpg");
 
             Mat binaryImage = new Mat();
             Imgproc.cvtColor(image, binaryImage, Imgproc.COLOR_BGR2GRAY);
@@ -512,13 +512,13 @@ public class Code {
     public void BinaryImage() {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-            Mat source = Imgcodecs.imread("duc.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+            Mat source = Imgcodecs.imread("grayWatershed.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
             Mat destination = new Mat(source.rows(), source.cols(), source.type());
 
             destination = source;
 
-            int erosion_size = 1;
-            int dilation_size = 1;
+            int erosion_size = 10;
+            int dilation_size = 10;
 
             Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2 * erosion_size + 1, 2 * erosion_size + 1));
             Imgproc.erode(source, destination, element);
@@ -538,51 +538,54 @@ public class Code {
 
     public void FindObjects() {
         // Load the library
-
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-
         // Consider the image for processing
-        Mat image = Imgcodecs.imread("saosao.jpg", Imgproc.COLOR_BGR2GRAY);
+        Mat image = Imgcodecs.imread("grayWatershed.jpg");
         Mat imageHSV = new Mat(image.size(), CvType.CV_8UC4);
         Mat imageBlurr = new Mat(image.size(), CvType.CV_8UC4);
         Mat imageA = new Mat(image.size(), CvType.CV_32F);
         Imgproc.cvtColor(image, imageHSV, Imgproc.COLOR_BGR2GRAY);
         Imgproc.GaussianBlur(imageHSV, imageBlurr, new Size(5, 5), 0);
         Imgproc.adaptiveThreshold(imageBlurr, imageA, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 7, 5);
-
         Imgcodecs.imwrite("duc1.jpg", imageBlurr);
 
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Imgproc.findContours(imageA, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-        //Imgproc.drawContours(imageBlurr, contours, 1, new Scalar(0,0,255));
+        Imgproc.drawContours(imageA, contours, 1, new Scalar(0, 0, 255));
+        Imgcodecs.imwrite("draw.jpg", imageA);
+        
+        BinaryImage();
+        
+        int x = 0;
         for (int i = 0; i < contours.size(); i++) {
             System.out.println(Imgproc.contourArea(contours.get(i)));
-            if (Imgproc.contourArea(contours.get(i)) > 10) {
+            if (Imgproc.contourArea(contours.get(i)) > 150) {
                 Rect rect = Imgproc.boundingRect(contours.get(i));
                 System.out.println(rect.height);
-                if (rect.height > 5) {
+                if (rect.height > 150) {
+                    x++;
+                    System.out.println("Đây là vật số:" + x / 2);
                     //System.out.println(rect.x +","+rect.y+","+rect.height+","+rect.width);
                     Imgproc.rectangle(image, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 0, 255));
                 }
             }
         }
         Imgcodecs.imwrite("duc2.jpg", image);
-
     }
 
     public void findContour() {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        Mat image = Imgcodecs.imread("duc.jpg", Imgproc.COLOR_BGR2GRAY);
+        Mat image = Imgcodecs.imread("saosao.jpg", Imgproc.COLOR_BGR2GRAY);
         if (image.empty() == true) {
             System.out.println("Error: no image found!");
         }
 
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Mat image32S = new Mat();
-        image.convertTo(image32S, CvType.CV_32SC1);
+        image.convertTo(image32S, CvType.CV_32F);
 
-        Imgproc.findContours(image32S, contours, new Mat(), Imgproc.RETR_FLOODFILL, Imgproc.CHAIN_APPROX_SIMPLE);
-
+        Imgproc.findContours(image32S, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+//Imgproc.findContours(imageA, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 // Draw all the contours such that they are filled in.
         Mat contourImg = new Mat(image32S.size(), image32S.type());
         for (int i = 0; i < contours.size(); i++) {
@@ -596,7 +599,7 @@ public class Code {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         int radio = 0; // radius
         Point pnt = null;
-        Mat fuente = Imgcodecs.imread("duc.jpg", Imgcodecs.CV_LOAD_IMAGE_COLOR); // font
+        Mat fuente = Imgcodecs.imread("IMG_0089.jpg", Imgcodecs.CV_LOAD_IMAGE_COLOR); // font
         Mat destino = new Mat(fuente.rows(), fuente.cols(), fuente.type()); // target
 
         Imgproc.cvtColor(fuente, destino, Imgproc.COLOR_RGB2GRAY);
@@ -639,7 +642,7 @@ public class Code {
 
     public void test() {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        Mat m = Imgcodecs.imread("duc.jpg", Imgcodecs.CV_LOAD_IMAGE_COLOR);
+        Mat m = Imgcodecs.imread("IMG_0089.jpg", Imgcodecs.CV_LOAD_IMAGE_COLOR);
         Mat hsv = new Mat();
         Mat mask = new Mat();
         Mat dilmask = new Mat();
