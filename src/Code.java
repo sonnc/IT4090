@@ -5,8 +5,10 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -106,7 +108,7 @@ public class Code {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-            Mat source = Imgcodecs.imread("BinaryImageErosion.jpg",
+            Mat source = Imgcodecs.imread("Adaptivemean_thresh_binary.jpg",
                     Imgcodecs.CV_LOAD_IMAGE_COLOR);
             Mat destination = new Mat(source.rows(), source.cols(), source.type());
             Imgproc.medianBlur(source, destination, n);
@@ -401,12 +403,20 @@ public class Code {
 
     public void Ostu() {
         try {
+//            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+//            Mat source = Imgcodecs.imread("watercoins.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+//            Mat destination = new Mat(source.rows(), source.cols(), source.type());
+//            destination = source;
+//            Imgproc.threshold(source, destination, 125, 255, Imgproc.THRESH_OTSU);
+//            Imgcodecs.imwrite("ducOstu.jpg", destination);
+            // Loading the OpenCV core library
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-            Mat source = Imgcodecs.imread("IMG_0092.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
-            Mat destination = new Mat(source.rows(), source.cols(), source.type());
-            destination = source;
-            Imgproc.threshold(source, destination, 125, 255, Imgproc.THRESH_OTSU);
-            Imgcodecs.imwrite("ducOstu.jpg", destination);
+            String file = "distnceTransform.jpg";
+            Mat src = Imgcodecs.imread(file);
+            Mat dst = new Mat();
+            Imgproc.threshold(src, dst, 200, 255, Imgproc.THRESH_BINARY_INV);
+            Imgcodecs.imwrite("ducOstu.jpg", dst);
+            System.out.println("Image Processed");
             LoadImg("ducOstu.jpg");
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
@@ -471,17 +481,19 @@ public class Code {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
             Mat image = new Mat();
-            image = Imgcodecs.imread("BinaryImageErosion.jpg");
+            image = Imgcodecs.imread("watercoins.jpg");
 
             Mat binaryImage = new Mat();
             Imgproc.cvtColor(image, binaryImage, Imgproc.COLOR_BGR2GRAY);
             Imgproc.threshold(binaryImage, binaryImage, 0, 255, Imgproc.THRESH_OTSU);
 
+            // vẽ nền
             Mat fg = new Mat(image.size(), CvType.CV_8U);
-            Imgproc.erode(binaryImage, fg, new Mat(), new Point(-1, -1), 0);
+            Imgproc.erode(binaryImage, fg, new Mat(), new Point(-1, -1), 1);
 
+            // vẽ biên
             Mat bg = new Mat(image.size(), CvType.CV_8U);
-            Imgproc.dilate(binaryImage, bg, new Mat(), new Point(-1, -1), 10);
+            Imgproc.dilate(binaryImage, bg, new Mat(), new Point(-1, -1), 0);
             Imgproc.threshold(bg, bg, 1, 128, Imgproc.THRESH_BINARY_INV);
 
             Mat markers = new Mat(image.size(), CvType.CV_8U, new Scalar(0));
@@ -512,23 +524,24 @@ public class Code {
     public void BinaryImage() {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-            Mat source = Imgcodecs.imread("grayWatershed.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+            Mat source = Imgcodecs.imread("test.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
             Mat destination = new Mat(source.rows(), source.cols(), source.type());
 
             destination = source;
 
-            int erosion_size = 10;
+            int erosion_size = 15;
             int dilation_size = 10;
 
             Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2 * erosion_size + 1, 2 * erosion_size + 1));
             Imgproc.erode(source, destination, element);
             Imgcodecs.imwrite("BinaryImageErosion.jpg", destination);
-
-            destination = source;
-
-            Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2 * dilation_size + 1, 2 * dilation_size + 1));
-            Imgproc.dilate(source, destination, element1);
-            Imgcodecs.imwrite("BinaryImageDilation.jpg", destination);
+            
+            Mat source2 = Imgcodecs.imread("test.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+            Mat destination2 = new Mat(source2.rows(), source2.cols(), source2.type());
+            destination2 = source2;
+            Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(1+ dilation_size , 1+ dilation_size ));
+            Imgproc.dilate(source2, destination2, element1);
+            Imgcodecs.imwrite("BinaryImageDilation.jpg", destination2);
             LoadImg("BinaryImageErosion.jpg");
             LoadImg("BinaryImageDilation.jpg");
         } catch (Exception e) {
@@ -540,7 +553,8 @@ public class Code {
         // Load the library
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         // Consider the image for processing
-        Mat image = Imgcodecs.imread("grayWatershed.jpg");
+        Mat image = Imgcodecs.imread("test.jpg");
+        Mat image2 = Imgcodecs.imread("watercoins.jpg");
         Mat imageHSV = new Mat(image.size(), CvType.CV_8UC4);
         Mat imageBlurr = new Mat(image.size(), CvType.CV_8UC4);
         Mat imageA = new Mat(image.size(), CvType.CV_32F);
@@ -553,91 +567,75 @@ public class Code {
         Imgproc.findContours(imageA, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
         Imgproc.drawContours(imageA, contours, 1, new Scalar(0, 0, 255));
         Imgcodecs.imwrite("draw.jpg", imageA);
-        
-        BinaryImage();
-        
+
         int x = 0;
         for (int i = 0; i < contours.size(); i++) {
             System.out.println(Imgproc.contourArea(contours.get(i)));
-            if (Imgproc.contourArea(contours.get(i)) > 150) {
+            if (Imgproc.contourArea(contours.get(i)) > 0) {
                 Rect rect = Imgproc.boundingRect(contours.get(i));
                 System.out.println(rect.height);
-                if (rect.height > 150) {
+                if (rect.height > 0 && i%2==0) {
                     x++;
                     System.out.println("Đây là vật số:" + x / 2);
                     //System.out.println(rect.x +","+rect.y+","+rect.height+","+rect.width);
-                    Imgproc.rectangle(image, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 0, 255));
+                    Imgproc.rectangle(image2, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 0, 255));
+
+                    Imgproc.putText(
+                            image2, // Matrix obj of the image
+                            "" + i + "", // Text to be added
+                            new Point((rect.x +(rect.x + rect.width))/2, (rect.y + (rect.y + rect.height))/2), // point
+                            Core.FONT_HERSHEY_SIMPLEX, // front face
+                            0.5, // front scale
+                            new Scalar(0, 0, 0), // Scalar object for color
+                            2 // Thickness
+                    );
                 }
             }
         }
-        Imgcodecs.imwrite("duc2.jpg", image);
+         Imgproc.putText(
+                            image2, // Matrix obj of the image
+                            "Cong Son NGUYEN", // Text to be added
+                            new Point(15, 15), // point
+                            Core.FONT_HERSHEY_SIMPLEX, // front face
+                            0.3, // front scale
+                            new Scalar(0, 0, 0), // Scalar object for color
+                            2 // Thickness
+                    );
+        Imgcodecs.imwrite("duc2.jpg", image2);
     }
 
     public void findContour() {
+        // Load the library of openCv
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        Mat image = Imgcodecs.imread("saosao.jpg", Imgproc.COLOR_BGR2GRAY);
-        if (image.empty() == true) {
-            System.out.println("Error: no image found!");
-        }
-
+        // Consider the image for processing
+        Mat image = Imgcodecs.imread("BinaryImageErosion.jpg", Imgproc.COLOR_BGR2GRAY);
+        Mat image2 = Imgcodecs.imread("watercoins.jpg");
+        Mat imageHSV = new Mat(image.size(), CvType.CV_8UC4);
+        Mat imageBlurr = new Mat(image.size(), CvType.CV_8UC4);
+        Mat imageA = new Mat(image.size(), CvType.CV_32F);
+        Imgproc.cvtColor(image, imageHSV, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.GaussianBlur(imageHSV, imageBlurr, new Size(5, 5), 0);
+        Imgproc.adaptiveThreshold(imageBlurr, imageA, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 7, 5);
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-        Mat image32S = new Mat();
-        image.convertTo(image32S, CvType.CV_32F);
-
-        Imgproc.findContours(image32S, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-//Imgproc.findContours(imageA, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-// Draw all the contours such that they are filled in.
-        Mat contourImg = new Mat(image32S.size(), image32S.type());
+        Imgproc.findContours(imageA, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
         for (int i = 0; i < contours.size(); i++) {
-            Imgproc.drawContours(contourImg, contours, i, new Scalar(255, 255, 255), -1);
-        }
-
-        Imgcodecs.imwrite("debug_image.jpg", contourImg); // DEBUG
-    }
-
-    public void run() {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        int radio = 0; // radius
-        Point pnt = null;
-        Mat fuente = Imgcodecs.imread("IMG_0089.jpg", Imgcodecs.CV_LOAD_IMAGE_COLOR); // font
-        Mat destino = new Mat(fuente.rows(), fuente.cols(), fuente.type()); // target
-
-        Imgproc.cvtColor(fuente, destino, Imgproc.COLOR_RGB2GRAY);
-
-        Imgproc.GaussianBlur(destino, destino, new Size(3, 3), 0, 0);
-        Mat circulos = new Mat(); // circles
-        //(Mat image, Mat circles,        int method  ,  dp, minDist, param1,  param2, minRadius, maxRadius)
-        Imgproc.HoughCircles(destino, circulos, Imgproc.CV_HOUGH_GRADIENT, 1, 1, 200, 100, 30, 300);
-        int radios;
-        Point pt;
-        System.out.println("" + circulos.cols());
-
-        for (int x = 0; x < circulos.cols(); x++) {
-            double vCirculo[] = circulos.get(0, x);
-
-            if (vCirculo == null) {
-                break;
-            }
-
-            pt = new Point(Math.round(vCirculo[0]), Math.round(vCirculo[1]));
-            radios = (int) Math.round(vCirculo[2]);
-
-            // encontrar radio mayor - finding greater radius
-            if (radio < radios) {
-                radio = radios;
-                pnt = pt;
+            if (Imgproc.contourArea(contours.get(i)) > 0) {
+                Rect rect = Imgproc.boundingRect(contours.get(i));
+                if ((rect.height > 0 && rect.height < 500) && (rect.width > 0 && rect.width < 500)) {
+                    Imgproc.rectangle(image2, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 0, 255));
+                    Imgproc.putText(
+                            image2, // Matrix obj of the image
+                            "" + i + "", // Text to be added
+                            new Point(rect.x, rect.y), // point
+                            Core.FONT_HERSHEY_SIMPLEX, // front face
+                            0.5, // front scale
+                            new Scalar(0, 0, 0), // Scalar object for color
+                            2 // Thickness
+                    );
+                }
             }
         }
-        // dibujar circulos encontrados - draw found circles
-        if (circulos.cols() != 0) {
-            Imgproc.circle(destino, pnt, radio, new Scalar(255, 255, 255), 3);
-            Imgproc.circle(destino, pnt, 1, new Scalar(255, 0, 0), 3);
-        } else {
-            System.out.println("no se encontraron circulos"); // there's no circles
-        }
-
-        Imgcodecs.imwrite("foundCircles.png", destino);
-        System.out.println("radio mayor " + radio);
+        Imgcodecs.imwrite("output.png", image2);
     }
 
     public void test() {
@@ -650,7 +648,7 @@ public class Code {
         Scalar color = new Scalar(239, 117, 94);
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Imgproc.cvtColor(m, hsv, Imgproc.COLOR_RGB2HSV);
-        new LoadImage("duc.jpg", m);
+        new LoadImage("IMG_0089.jpg", m);
         Scalar lowerThreshold = new Scalar(120, 100, 100);
         Scalar upperThreshold = new Scalar(179, 255, 255);
         Core.inRange(hsv, lowerThreshold, upperThreshold, mask);
@@ -658,12 +656,52 @@ public class Code {
         Imgproc.findContours(dilmask, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
         //Imgproc.drawContours(fin, contours, -1, color, 0);
         for (int contourIdx = 0; contourIdx < contours.size(); contourIdx++) {
-            if (contours.size() > 10) // Minimum size allowed for consideration
+            if (contours.size() > 5) // Minimum size allowed for consideration
             {
                 Imgproc.drawContours(fin, contours, contourIdx, color, 3);
             }
         }
         Imgcodecs.imwrite("s.jpg", fin);
+    }
+
+    public void BaiKiemTra() {
+
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        // Consider the image for processing
+        Mat src = Imgcodecs.imread("watercoins.jpg", Imgcodecs.CV_LOAD_IMAGE_COLOR);
+
+        // Creating an empty matrix to store the result
+        Mat dst = new Mat();
+
+        Imgproc.adaptiveThreshold(src, dst, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,
+                Imgproc.THRESH_BINARY, 11, 12);
+
+        // Writing the image
+        Imgcodecs.imwrite("Adaptivemean_thresh_binary.jpg", dst);
+
+        System.out.println("Image Processed");
+
+    }
+
+    public void DistanceTransform() {
+        // Loading the OpenCV core library
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        Mat src = Imgcodecs.imread("ducOstu.jpg", 0);
+
+        // Creating an empty matrix to store the results
+        Mat dst = new Mat();
+        Mat binary = new Mat();
+
+        // Converting the grayscale image to binary image
+        Imgproc.threshold(src, binary, 10, 255, Imgproc.THRESH_BINARY);
+
+        // Applying distance transform
+        Imgproc.distanceTransform(src, dst, Imgproc.DIST_MASK_3, 3);
+
+        // Writing the image
+        Imgcodecs.imwrite("distnceTransform.jpg", dst);
+
+        System.out.println("Image Processed");
     }
 
     public void LoadImg(String src) {
