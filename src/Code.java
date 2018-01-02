@@ -1,5 +1,6 @@
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -409,9 +410,9 @@ public class Code {
 //            destination = source;
 //            Imgproc.threshold(source, destination, 125, 255, Imgproc.THRESH_OTSU);
 //            Imgcodecs.imwrite("ducOstu.jpg", destination);
-            // Loading the OpenCV core library
+
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-            String file = "distnceTransform.jpg";
+            String file = "watercoins.jpg";
             Mat src = Imgcodecs.imread(file);
             Mat dst = new Mat();
             Imgproc.threshold(src, dst, 200, 255, Imgproc.THRESH_BINARY_INV);
@@ -481,7 +482,7 @@ public class Code {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
             Mat image = new Mat();
-            image = Imgcodecs.imread("watercoins.jpg");
+            image = Imgcodecs.imread("distnceTransform.jpg");
 
             Mat binaryImage = new Mat();
             Imgproc.cvtColor(image, binaryImage, Imgproc.COLOR_BGR2GRAY);
@@ -524,22 +525,23 @@ public class Code {
     public void BinaryImage() {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-            Mat source = Imgcodecs.imread("test.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+            Mat source = Imgcodecs.imread("watercoins.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
             Mat destination = new Mat(source.rows(), source.cols(), source.type());
 
             destination = source;
 
-            int erosion_size = 15;
-            int dilation_size = 10;
-
+            int erosion_size = 5;
+            int dilation_size = 5;
+// nhỏ
             Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2 * erosion_size + 1, 2 * erosion_size + 1));
             Imgproc.erode(source, destination, element);
             Imgcodecs.imwrite("BinaryImageErosion.jpg", destination);
-            
-            Mat source2 = Imgcodecs.imread("test.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+
+            // to
+            Mat source2 = Imgcodecs.imread("watercoins.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
             Mat destination2 = new Mat(source2.rows(), source2.cols(), source2.type());
             destination2 = source2;
-            Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(1+ dilation_size , 1+ dilation_size ));
+            Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(1 + dilation_size, 1 + dilation_size));
             Imgproc.dilate(source2, destination2, element1);
             Imgcodecs.imwrite("BinaryImageDilation.jpg", destination2);
             LoadImg("BinaryImageErosion.jpg");
@@ -552,16 +554,88 @@ public class Code {
     public void FindObjects() {
         // Load the library
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        // Consider the image for processing
-        Mat image = Imgcodecs.imread("test.jpg");
+        // đưa về nhị phân
+        Mat source = Imgcodecs.imread("watercoins.jpg", 0);
         Mat image2 = Imgcodecs.imread("watercoins.jpg");
+        Mat dst = new Mat();
+        Imgproc.threshold(source, dst, 200, 255, Imgproc.THRESH_BINARY_INV);
+        Imgcodecs.imwrite("result.jpg", dst);
+        Imgcodecs.imwrite("result1.jpg", dst);
+        LoadImg("result1.jpg");
+
+        // làm mịn
+//        Mat srcMedian = Imgcodecs.imread("result.jpg");
+//        Mat destination = new Mat(srcMedian.rows(), srcMedian.cols(), srcMedian.type());
+//        Imgproc.medianBlur(srcMedian, destination, 3);
+//        Imgcodecs.imwrite("result.jpg", destination);
+        // khoảng cách
+        Mat src = Imgcodecs.imread("result.jpg", 0);
+        Mat matDst = new Mat();
+        Mat binary = new Mat();
+        Imgproc.threshold(src, binary, 10, 255, Imgproc.THRESH_BINARY);
+        Imgproc.distanceTransform(src, matDst, Imgproc.DIST_MASK_3, 3);
+        Imgcodecs.imwrite("result.jpg", matDst);
+        Imgcodecs.imwrite("result2.jpg", matDst);
+        LoadImg("result2.jpg");
+        System.out.println("datinh");
+
+        // thu nhỏ, phóng to 
+        int erosion_size = 8;
+        int dilation_size = 3;
+        Mat sourceE = Imgcodecs.imread("result.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+        Mat destinationE = new Mat(sourceE.rows(), sourceE.cols(), sourceE.type());
+        destinationE = sourceE;
+        // nhỏ
+        Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3 * erosion_size, 3 * erosion_size));
+        Imgproc.erode(sourceE, destinationE, element);
+        Imgcodecs.imwrite("result.jpg", destinationE);
+        Imgcodecs.imwrite("result3.jpg", destinationE);
+        LoadImg("result3.jpg");
+        // to
+        Mat sourceD = Imgcodecs.imread("result.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+        Mat destinationD = new Mat(sourceD.rows(), sourceD.cols(), sourceD.type());
+        destinationD = sourceD;
+        Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(dilation_size, dilation_size));
+        Imgproc.dilate(sourceD, destinationD, element1);
+        Imgcodecs.imwrite("result.jpg", destinationD);
+        Imgcodecs.imwrite("result4.jpg", destinationD);
+        LoadImg("result4.jpg");
+        // phân vùng
+        Mat imageOS = new Mat();
+        imageOS = Imgcodecs.imread("result.jpg");
+
+        Mat binaryImage = new Mat();
+        Imgproc.cvtColor(imageOS, binaryImage, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.threshold(binaryImage, binaryImage, 0, 255, Imgproc.THRESH_OTSU);
+
+        // vẽ nền
+        Mat fg = new Mat(imageOS.size(), CvType.CV_8U);
+        Imgproc.erode(binaryImage, fg, new Mat(), new Point(-1, -1), 1);
+
+        // vẽ biên
+        Mat bg = new Mat(imageOS.size(), CvType.CV_8U);
+        Imgproc.dilate(binaryImage, bg, new Mat(), new Point(-1, -1), 0);
+        Imgproc.threshold(bg, bg, 1, 128, Imgproc.THRESH_BINARY_INV);
+
+        Mat markers = new Mat(imageOS.size(), CvType.CV_8U, new Scalar(0));
+        Core.add(fg, bg, markers);
+
+        setMarkers(markers);
+        Mat result = process(imageOS);
+        Imgcodecs.imwrite("result.jpg", result);
+        Imgcodecs.imwrite("result5.jpg", result);
+        LoadImg("result5.jpg");
+        // Consider the image for processing
+        Mat image = Imgcodecs.imread("result.jpg");
+
         Mat imageHSV = new Mat(image.size(), CvType.CV_8UC4);
         Mat imageBlurr = new Mat(image.size(), CvType.CV_8UC4);
         Mat imageA = new Mat(image.size(), CvType.CV_32F);
         Imgproc.cvtColor(image, imageHSV, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.Canny(imageHSV, imageBlurr, 100, 100, 3, true);
         Imgproc.GaussianBlur(imageHSV, imageBlurr, new Size(5, 5), 0);
         Imgproc.adaptiveThreshold(imageBlurr, imageA, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 7, 5);
-        Imgcodecs.imwrite("duc1.jpg", imageBlurr);
+        //Imgcodecs.imwrite("kq.jpg", imageBlurr);
 
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Imgproc.findContours(imageA, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -569,46 +643,80 @@ public class Code {
         Imgcodecs.imwrite("draw.jpg", imageA);
 
         int x = 0;
-        for (int i = 0; i < contours.size(); i++) {
-            System.out.println(Imgproc.contourArea(contours.get(i)));
-            if (Imgproc.contourArea(contours.get(i)) > 0) {
-                Rect rect = Imgproc.boundingRect(contours.get(i));
-                System.out.println(rect.height);
-                if (rect.height > 0 && i%2==0) {
-                    x++;
-                    System.out.println("Đây là vật số:" + x / 2);
-                    //System.out.println(rect.x +","+rect.y+","+rect.height+","+rect.width);
-                    Imgproc.rectangle(image2, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 0, 255));
+        double max = 0;
+        double min = 0;
 
-                    Imgproc.putText(
-                            image2, // Matrix obj of the image
-                            "" + i + "", // Text to be added
-                            new Point((rect.x +(rect.x + rect.width))/2, (rect.y + (rect.y + rect.height))/2), // point
-                            Core.FONT_HERSHEY_SIMPLEX, // front face
-                            0.5, // front scale
-                            new Scalar(0, 0, 0), // Scalar object for color
-                            2 // Thickness
-                    );
-                }
-            }
+        ArrayList<math> arrayList = new ArrayList<math>();
+        for (int i = 0; i < contours.size(); i++) {
+            Rect rect = Imgproc.boundingRect(contours.get(i));
+            String h = String.valueOf(rect.height);
+            arrayList.add(new math(i, rect.x, rect.y, h, rect.width));
         }
-         Imgproc.putText(
-                            image2, // Matrix obj of the image
-                            "Cong Son NGUYEN", // Text to be added
-                            new Point(15, 15), // point
-                            Core.FONT_HERSHEY_SIMPLEX, // front face
-                            0.3, // front scale
-                            new Scalar(0, 0, 0), // Scalar object for color
-                            2 // Thickness
-                    );
-        Imgcodecs.imwrite("duc2.jpg", image2);
+        for (math item : arrayList) {
+            System.out.println(item);
+        }
+        Collections.sort(arrayList, math.compare);
+        System.out.println("---------------");
+        for (math item : arrayList) {
+            System.out.println(item);
+        }
+
+        for (int i = 0; i < arrayList.size() / 2; i++) {
+            x++;
+            System.out.println("Đây là vật số:" + x);
+            Imgproc.rectangle(image2, new Point(arrayList.get(i).getX(), arrayList.get(i).getY()), new Point(arrayList.get(i).getX() + arrayList.get(i).getRong(), arrayList.get(i).getY() + Integer.parseInt(arrayList.get(i).getDai())), new Scalar(0, 0, 255));
+            Imgproc.putText(
+                    image2, // Matrix obj of the image
+                    "" + x + "", // Text to be added
+                    new Point(arrayList.get(i).getX(), arrayList.get(i).getY()), // point
+                    Core.FONT_HERSHEY_SIMPLEX, // front face
+                    0.5, // front scale
+                    new Scalar(0, 0, 0), // Scalar object for color
+                    2 // Thickness
+            );
+
+        }
+
+//        for (int i = 0; i < contours.size(); i++) {
+//            System.out.println(Imgproc.contourArea(contours.get(i)));
+//            if (Imgproc.contourArea(contours.get(i)) > 0) {
+//                Rect rect = Imgproc.boundingRect(contours.get(i));
+//                System.out.println(rect.height);
+//
+//                if (rect.height > 16 && rect.height < 25) {
+//                    x++;
+//                    System.out.println("Đây là vật số:" + x);
+//                    Imgproc.rectangle(image2, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 0, 255));
+//                    Imgproc.putText(
+//                            image2, // Matrix obj of the image
+//                            "" + x + "", // Text to be added
+//                            new Point((rect.x + (rect.x + rect.width)) / 2, (rect.y + (rect.y + rect.height)) / 2), // point
+//                            Core.FONT_HERSHEY_SIMPLEX, // front face
+//                            0.5, // front scale
+//                            new Scalar(0, 0, 0), // Scalar object for color
+//                            2 // Thickness
+//                    );
+//                }
+//            }
+//        }
+        Imgproc.putText(
+                image2, // Matrix obj of the image
+                "Cong Son NGUYEN", // Text to be added
+                new Point(15, 15), // point
+                Core.FONT_HERSHEY_SIMPLEX, // front face
+                0.3, // front scale
+                new Scalar(0, 0, 0), // Scalar object for color
+                2 // Thickness
+        );
+        Imgcodecs.imwrite("finir.jpg", image2);
+        LoadImg("finir.jpg");
     }
 
     public void findContour() {
         // Load the library of openCv
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         // Consider the image for processing
-        Mat image = Imgcodecs.imread("BinaryImageErosion.jpg", Imgproc.COLOR_BGR2GRAY);
+        Mat image = Imgcodecs.imread("BinaryImageDilation.jpg", Imgproc.COLOR_BGR2GRAY);
         Mat image2 = Imgcodecs.imread("watercoins.jpg");
         Mat imageHSV = new Mat(image.size(), CvType.CV_8UC4);
         Mat imageBlurr = new Mat(image.size(), CvType.CV_8UC4);
@@ -668,7 +776,7 @@ public class Code {
 
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         // Consider the image for processing
-        Mat src = Imgcodecs.imread("watercoins.jpg", Imgcodecs.CV_LOAD_IMAGE_COLOR);
+        Mat src = Imgcodecs.imread("aa.jpg", Imgcodecs.CV_LOAD_IMAGE_COLOR);
 
         // Creating an empty matrix to store the result
         Mat dst = new Mat();
