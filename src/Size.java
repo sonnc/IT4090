@@ -148,14 +148,14 @@ public class Size extends javax.swing.JFrame {
         jLabel4.setForeground(new java.awt.Color(0, 0, 204));
         jLabel4.setText("Đường biên");
 
-        jButton5.setText("PREWITT (X)");
+        jButton5.setText("PREWITT (Y)");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton5ActionPerformed(evt);
             }
         });
 
-        jButton6.setText("PREWITT (Y)");
+        jButton6.setText("PREWITT (X)");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton6ActionPerformed(evt);
@@ -169,14 +169,14 @@ public class Size extends javax.swing.JFrame {
             }
         });
 
-        jButton8.setText("ROBERST (X)");
+        jButton8.setText("ROBERST (Y)");
         jButton8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton8ActionPerformed(evt);
             }
         });
 
-        jButton9.setText("ROBERST (Y)");
+        jButton9.setText("ROBERST (X)");
         jButton9.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton9ActionPerformed(evt);
@@ -190,14 +190,14 @@ public class Size extends javax.swing.JFrame {
             }
         });
 
-        jButton11.setText("SOBEL (X)");
+        jButton11.setText("SOBEL (Y)");
         jButton11.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton11ActionPerformed(evt);
             }
         });
 
-        jButton12.setText("SOBEL (Y)");
+        jButton12.setText("SOBEL (X)");
         jButton12.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton12ActionPerformed(evt);
@@ -211,14 +211,14 @@ public class Size extends javax.swing.JFrame {
             }
         });
 
-        jButton14.setText("LAPLACE (X)");
+        jButton14.setText("LAPLACE (Y)");
         jButton14.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton14ActionPerformed(evt);
             }
         });
 
-        jButton15.setText("LAPLACE (Y)");
+        jButton15.setText("LAPLACE (X)");
         jButton15.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton15ActionPerformed(evt);

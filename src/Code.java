@@ -29,13 +29,13 @@ public class Code {
     public void Histogram() {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-            Mat source = Imgcodecs.imread("duc.jpg",
+            Mat source = Imgcodecs.imread("ducHist1.jpg",
                     Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
             Mat destination = new Mat(source.rows(), source.cols(), source.type());
 
             Imgproc.equalizeHist(source, destination);
-            Imgcodecs.imwrite("ducHist.jpg", destination);
-            LoadImg("ducHist.jpg");
+            Imgcodecs.imwrite("ducHist12.jpg", destination);
+            LoadImg("ducHist12.jpg");
 
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
@@ -63,7 +63,7 @@ public class Code {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-            Mat source = Imgcodecs.imread("ducOstu.jpg",
+            Mat source = Imgcodecs.imread("duc.jpg",
                     Imgcodecs.CV_LOAD_IMAGE_COLOR);
 
             Mat destination = new Mat(source.rows(), source.cols(), source.type());
@@ -109,7 +109,7 @@ public class Code {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-            Mat source = Imgcodecs.imread("Adaptivemean_thresh_binary.jpg",
+            Mat source = Imgcodecs.imread("duc.jpg",
                     Imgcodecs.CV_LOAD_IMAGE_COLOR);
             Mat destination = new Mat(source.rows(), source.cols(), source.type());
             Imgproc.medianBlur(source, destination, n);
@@ -344,9 +344,9 @@ public class Code {
             if (n == 0) {
                 kernel = new Mat(kernelSize, kernelSize, CvType.CV_32F) {
                     {
-                        put(0, 0, 0);
+                        put(0, 0, 0); 
                         put(0, 1, -1);
-                        put(0, 2, 0);
+                        put(0, 2, 0); 
 
                         put(1, 0, -1);
                         put(1, 1, 4);
@@ -404,20 +404,20 @@ public class Code {
 
     public void Ostu() {
         try {
-//            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-//            Mat source = Imgcodecs.imread("watercoins.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
-//            Mat destination = new Mat(source.rows(), source.cols(), source.type());
-//            destination = source;
-//            Imgproc.threshold(source, destination, 125, 255, Imgproc.THRESH_OTSU);
-//            Imgcodecs.imwrite("ducOstu.jpg", destination);
-
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-            String file = "watercoins.jpg";
-            Mat src = Imgcodecs.imread(file);
-            Mat dst = new Mat();
-            Imgproc.threshold(src, dst, 200, 255, Imgproc.THRESH_BINARY_INV);
-            Imgcodecs.imwrite("ducOstu.jpg", dst);
-            System.out.println("Image Processed");
+            Mat source = Imgcodecs.imread("duc.jpg", Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE);
+            Mat destination = new Mat(source.rows(), source.cols(), source.type());
+            destination = source;
+            Imgproc.threshold(source, destination, 125, 255, Imgproc.THRESH_OTSU);
+            Imgcodecs.imwrite("ducOstu.jpg", destination);
+
+//            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+//            String file = "watercoins.jpg";
+//            Mat src = Imgcodecs.imread(file);
+//            Mat dst = new Mat();
+//            Imgproc.threshold(src, dst, 200, 255, Imgproc.THRESH_BINARY_INV);
+//            Imgcodecs.imwrite("ducOstu.jpg", dst);
+//            System.out.println("Image Processed");
             LoadImg("ducOstu.jpg");
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
@@ -482,7 +482,7 @@ public class Code {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
             Mat image = new Mat();
-            image = Imgcodecs.imread("distnceTransform.jpg");
+            image = Imgcodecs.imread("duc.jpg");
 
             Mat binaryImage = new Mat();
             Imgproc.cvtColor(image, binaryImage, Imgproc.COLOR_BGR2GRAY);
@@ -495,6 +495,7 @@ public class Code {
             // vẽ biên
             Mat bg = new Mat(image.size(), CvType.CV_8U);
             Imgproc.dilate(binaryImage, bg, new Mat(), new Point(-1, -1), 0);
+            // mức độ lấy phân vùng nhiều / mức độ sáng tối
             Imgproc.threshold(bg, bg, 1, 128, Imgproc.THRESH_BINARY_INV);
 
             Mat markers = new Mat(image.size(), CvType.CV_8U, new Scalar(0));
@@ -628,12 +629,12 @@ public class Code {
         // Consider the image for processing
         Mat image = Imgcodecs.imread("result.jpg");
 
-        Mat imageHSV = new Mat(image.size(), CvType.CV_8UC4);
+        Mat imageMat = new Mat(image.size(), CvType.CV_8UC4);
         Mat imageBlurr = new Mat(image.size(), CvType.CV_8UC4);
         Mat imageA = new Mat(image.size(), CvType.CV_32F);
-        Imgproc.cvtColor(image, imageHSV, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.Canny(imageHSV, imageBlurr, 100, 100, 3, true);
-        Imgproc.GaussianBlur(imageHSV, imageBlurr, new Size(5, 5), 0);
+        Imgproc.cvtColor(image, imageMat, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.Canny(imageMat, imageBlurr, 100, 100, 3, true);
+        Imgproc.GaussianBlur(imageMat, imageBlurr, new Size(5, 5), 0);
         Imgproc.adaptiveThreshold(imageBlurr, imageA, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 7, 5);
         //Imgcodecs.imwrite("kq.jpg", imageBlurr);
 

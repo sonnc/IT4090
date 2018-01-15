@@ -285,7 +285,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="jButton5">
           <Properties>
-            <Property name="text" type="java.lang.String" value="PREWITT (X)"/>
+            <Property name="text" type="java.lang.String" value="PREWITT (Y)"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton5ActionPerformed"/>
@@ -293,7 +293,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="jButton6">
           <Properties>
-            <Property name="text" type="java.lang.String" value="PREWITT (Y)"/>
+            <Property name="text" type="java.lang.String" value="PREWITT (X)"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton6ActionPerformed"/>
@@ -309,7 +309,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="jButton8">
           <Properties>
-            <Property name="text" type="java.lang.String" value="ROBERST (X)"/>
+            <Property name="text" type="java.lang.String" value="ROBERST (Y)"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton8ActionPerformed"/>
@@ -317,7 +317,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="jButton9">
           <Properties>
-            <Property name="text" type="java.lang.String" value="ROBERST (Y)"/>
+            <Property name="text" type="java.lang.String" value="ROBERST (X)"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton9ActionPerformed"/>
@@ -333,7 +333,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="jButton11">
           <Properties>
-            <Property name="text" type="java.lang.String" value="SOBEL (X)"/>
+            <Property name="text" type="java.lang.String" value="SOBEL (Y)"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton11ActionPerformed"/>
@@ -341,7 +341,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="jButton12">
           <Properties>
-            <Property name="text" type="java.lang.String" value="SOBEL (Y)"/>
+            <Property name="text" type="java.lang.String" value="SOBEL (X)"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton12ActionPerformed"/>
@@ -357,7 +357,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="jButton14">
           <Properties>
-            <Property name="text" type="java.lang.String" value="LAPLACE (X)"/>
+            <Property name="text" type="java.lang.String" value="LAPLACE (Y)"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton14ActionPerformed"/>
@@ -365,7 +365,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="jButton15">
           <Properties>
-            <Property name="text" type="java.lang.String" value="LAPLACE (Y)"/>
+            <Property name="text" type="java.lang.String" value="LAPLACE (X)"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton15ActionPerformed"/>
